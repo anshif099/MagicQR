@@ -1,3 +1,4 @@
+import '../config/load-env';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import bcrypt from 'bcrypt';
@@ -134,11 +135,6 @@ async function resetDatabase(): Promise<void> {
 
 async function main(): Promise<void> {
   const command = process.argv[2];
-  if (!env.DB_NAME || !env.DB_USER) {
-    throw new Error(
-      'DB_NAME and DB_USER must be configured before running database commands.',
-    );
-  }
   if (command === 'migrate') await runMigrations();
   else if (command === 'seed') await runSeeds();
   else if (command === 'reset') await resetDatabase();

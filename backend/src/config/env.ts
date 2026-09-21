@@ -1,7 +1,15 @@
-import 'dotenv/config';
+import './load-env';
 import { z } from 'zod';
 
 const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value);
+
+const requiredDatabaseVariables = [
+  'DB_HOST',
+  'DB_PORT',
+  'DB_NAME',
+  'DB_USER',
+  'DB_PASSWORD',
+] as const;
 
 const envSchema = z.object({
   NODE_ENV: z
@@ -13,11 +21,11 @@ const envSchema = z.object({
     .regex(/^\/[a-zA-Z0-9/_-]*$/, 'API_BASE_PATH must start with /')
     .transform((value) => value.replace(/\/$/, '') || '/')
     .default('/api'),
-  DB_HOST: z.string().default('localhost'),
-  DB_PORT: z.coerce.number().int().positive().default(3306),
-  DB_NAME: z.preprocess(emptyToUndefined, z.string().optional()),
-  DB_USER: z.preprocess(emptyToUndefined, z.string().optional()),
-  DB_PASSWORD: z.string().optional().default(''),
+  DB_HOST: z.string().min(1),
+  DB_PORT: z.coerce.number().int().positive(),
+  DB_NAME: z.string().min(1),
+  DB_USER: z.string().min(1),
+  DB_PASSWORD: z.string().min(1),
   JWT_ACCESS_SECRET: z.preprocess(emptyToUndefined, z.string().optional()),
   JWT_REFRESH_SECRET: z.preprocess(emptyToUndefined, z.string().optional()),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
@@ -37,12 +45,24 @@ const envSchema = z.object({
   ),
 });
 
-const parsedEnv = envSchema.safeParse(process.env);
+export type Environment = z.infer<typeof envSchema>;
 
-if (!parsedEnv.success) {
-  throw new Error(
-    `Invalid environment configuration: ${z.prettifyError(parsedEnv.error)}`,
-  );
+export function parseEnvironment(source: NodeJS.ProcessEnv): Environment {
+  for (const variable of requiredDatabaseVariables) {
+    if (!source[variable] || source[variable].trim() === '') {
+      throw new Error(`Missing required environment variable: ${variable}`);
+    }
+  }
+
+  const parsedEnv = envSchema.safeParse(source);
+
+  if (!parsedEnv.success) {
+    throw new Error(
+      `Invalid environment configuration: ${z.prettifyError(parsedEnv.error)}`,
+    );
+  }
+
+  return parsedEnv.data;
 }
 
-export const env = parsedEnv.data;
+export const env = parseEnvironment(process.env);
