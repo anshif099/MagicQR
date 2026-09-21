@@ -6,14 +6,14 @@ import { App } from './App';
 import './index.css';
 
 const queryClient = new QueryClient();
+const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={routerBasename}>
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>,
 );
-

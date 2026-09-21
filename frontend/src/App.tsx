@@ -7,7 +7,7 @@ type HealthResponse = {
 };
 
 async function fetchHealth(): Promise<HealthResponse> {
-  const response = await apiClient.get<HealthResponse>('/api/v1/health');
+  const response = await apiClient.get<HealthResponse>('/health');
   return response.data;
 }
 
@@ -37,4 +37,3 @@ export function App() {
     </main>
   );
 }
-
