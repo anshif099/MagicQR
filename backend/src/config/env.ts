@@ -8,6 +8,11 @@ const envSchema = z.object({
     .enum(['development', 'test', 'production'])
     .default('development'),
   PORT: z.coerce.number().int().positive().default(3000),
+  API_BASE_PATH: z
+    .string()
+    .regex(/^\/[a-zA-Z0-9/_-]*$/, 'API_BASE_PATH must start with /')
+    .transform((value) => value.replace(/\/$/, '') || '/')
+    .default('/api'),
   DB_HOST: z.string().default('localhost'),
   DB_PORT: z.coerce.number().int().positive().default(3306),
   DB_NAME: z.preprocess(emptyToUndefined, z.string().optional()),
