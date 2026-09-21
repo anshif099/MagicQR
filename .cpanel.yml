@@ -1,8 +1,9 @@
 ---
 deployment:
   tasks:
-    - cd frontend && npm ci
-    - cd frontend && npm run build
-    - mkdir -p /home/zmpwnmium/fairbis.in/magicqr/
-    - rsync -a --delete frontend/dist/ /home/zmpwnmium/fairbis.in/magicqr/
-
+    - export DEPLOYPATH=/home/zmpwnmium/fairbis.in/magicqr/
+    - cd frontend
+    - npm ci
+    - npm run build
+    - mkdir -p "$DEPLOYPATH"
+    - rsync -a --delete dist/ "$DEPLOYPATH"
