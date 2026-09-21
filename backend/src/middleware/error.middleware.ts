@@ -2,8 +2,14 @@ import type { ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
 import { env } from '../config/env';
 import { logger } from '../config/logger';
+import { AppError } from '../utils/app-error';
 
-export const errorHandler: ErrorRequestHandler = (error, _request, response, _next) => {
+export const errorHandler: ErrorRequestHandler = (
+  error,
+  _request,
+  response,
+  _next,
+) => {
   void _next;
   logger.error({ err: error }, 'Unhandled request error');
 
@@ -12,6 +18,16 @@ export const errorHandler: ErrorRequestHandler = (error, _request, response, _ne
       success: false,
       message: 'Validation failed',
       issues: error.issues,
+    });
+    return;
+  }
+
+  if (error instanceof AppError) {
+    response.status(error.statusCode).json({
+      success: false,
+      code: error.code,
+      message: error.message,
+      ...(error.details === undefined ? {} : { details: error.details }),
     });
     return;
   }

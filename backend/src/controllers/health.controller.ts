@@ -6,4 +6,3 @@ export function getHealth(_request: Request, response: Response): void {
     service: 'magicreview-api',
   });
 }
-

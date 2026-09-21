@@ -13,5 +13,12 @@ export const databasePool = mysql.createPool({
   idleTimeout: 60_000,
   queueLimit: 0,
   enableKeepAlive: true,
+  supportBigNumbers: true,
+  bigNumberStrings: true,
+  multipleStatements: false,
 });
 
+export type DatabaseExecutor = Pick<
+  mysql.Pool,
+  'execute' | 'query' | 'getConnection'
+>;

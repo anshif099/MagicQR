@@ -32,6 +32,8 @@ npm run dev
 
 The API health endpoint is available at `GET /api/v1/health`.
 
+Backend identity, authorization, tenancy, migration, and seed documentation is available in [`docs/backend-identity-tenancy.md`](docs/backend-identity-tenancy.md).
+
 ## Production builds
 
 ```sh
@@ -45,4 +47,3 @@ cd frontend
 npm run build
 npm run preview
 ```
-
