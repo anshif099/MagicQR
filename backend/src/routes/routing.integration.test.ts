@@ -44,9 +44,25 @@ describe('API base-path routing', () => {
     expect(response.status).toBe(200);
   });
 
+  it('serves Passenger requests when /api is retained in the internal URL', async () => {
+    const response = await request(
+      createApp({ passengerMounted: true }),
+      '/api/v1/health',
+    );
+    expect(response.status).toBe(200);
+  });
+
   it('does not duplicate the public API base prefix', async () => {
     const response = await request(
       createApp({ passengerMounted: false }),
+      '/api/api/v1/health',
+    );
+    expect(response.status).toBe(404);
+  });
+
+  it('does not duplicate the API prefix when running under Passenger', async () => {
+    const response = await request(
+      createApp({ passengerMounted: true }),
       '/api/api/v1/health',
     );
     expect(response.status).toBe(404);

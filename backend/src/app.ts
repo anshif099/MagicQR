@@ -6,7 +6,7 @@ import { env } from './config/env';
 import { errorHandler } from './middleware/error.middleware';
 import { notFoundHandler } from './middleware/not-found.middleware';
 import { apiRouter } from './routes';
-import { getApiRouterMountPath, isPassengerRuntime } from './config/api-path';
+import { getApiRouterMountPaths, isPassengerRuntime } from './config/api-path';
 
 interface AppOptions {
   passengerMounted?: boolean;
@@ -15,9 +15,8 @@ interface AppOptions {
 export function createApp(options: AppOptions = {}): Express {
   const app = express();
   const passengerMounted =
-    options.passengerMounted ??
-    (isPassengerRuntime(process.env) || env.NODE_ENV === 'production');
-  const routerMountPath = getApiRouterMountPath(
+    options.passengerMounted ?? isPassengerRuntime(process.env);
+  const routerMountPaths = getApiRouterMountPaths(
     env.API_BASE_PATH,
     passengerMounted,
   );
@@ -25,7 +24,7 @@ export function createApp(options: AppOptions = {}): Express {
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
   app.set('apiBasePath', env.API_BASE_PATH);
-  app.set('apiRouterMountPath', routerMountPath);
+  app.set('apiRouterMountPaths', routerMountPaths);
   app.use(helmet());
   app.use(
     cors({
@@ -37,7 +36,7 @@ export function createApp(options: AppOptions = {}): Express {
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
   app.use(cookieParser());
 
-  app.use(routerMountPath, apiRouter);
+  app.use(routerMountPaths, apiRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

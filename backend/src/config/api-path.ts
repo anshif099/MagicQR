@@ -7,11 +7,21 @@ export function isPassengerRuntime(environment: NodeJS.ProcessEnv): boolean {
   );
 }
 
-export function getApiRouterMountPath(
+export function getApiRouterMountPaths(
   apiBasePath: string,
   passengerMounted: boolean,
-): string {
-  if (passengerMounted) return API_VERSION_PATH;
-  if (apiBasePath === '/') return API_VERSION_PATH;
-  return `${apiBasePath}${API_VERSION_PATH}`;
+): string[] {
+  const publicMountPath =
+    apiBasePath === '/'
+      ? API_VERSION_PATH
+      : `${apiBasePath}${API_VERSION_PATH}`;
+
+  // Passenger installations differ in whether the application base URI is
+  // removed from PATH_INFO. Accept the stripped path only inside Passenger,
+  // while always retaining the single canonical public /api/v1 mount.
+  if (passengerMounted && publicMountPath !== API_VERSION_PATH) {
+    return [publicMountPath, API_VERSION_PATH];
+  }
+
+  return [publicMountPath];
 }
